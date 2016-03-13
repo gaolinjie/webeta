@@ -53,93 +53,9 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.user_model
 
     @property
-    def reply_model(self):
-        return self.application.reply_model
-
-    @property
-    def follow_model(self):
-        return self.application.follow_model
-
-    @property
-    def post_model(self):
-        return self.application.post_model
-
-    @property
-    def feed_model(self):
-        return self.application.feed_model
-
-    @property
-    def feed_type_model(self):
-        return self.application.feed_type_model
-
-    @property
-    def like_item_model(self):
-        return self.application.like_item_model
-
-    @property
-    def vote_model(self):
-        return self.application.vote_model
-
-    @property
-    def post_tag_model(self):
-        return self.application.post_tag_model
-
-    @property
-    def tag_model(self):
-        return self.application.tag_model
-
-    @property
-    def category_model(self):
-        return self.application.category_model
-
-    @property
-    def thank_model(self):
-        return self.application.thank_model
-
-    @property
-    def report_model(self):
-        return self.application.report_model
-
-    @property
-    def notice_model(self):
-        return self.application.notice_model
-
-    @property
-    def invite_model(self):
-        return self.application.invite_model
-
-    @property
-    def tag_type_model(self):
-        return self.application.tag_type_model
-
-    @property
-    def icode_model(self):
-        return self.application.icode_model
-
-    @property
-    def avatar_model(self):
-        return self.application.avatar_model
-
-    @property
-    def tag_parent_model(self):
-        return self.application.tag_parent_model
-
-    @property
-    def balance_model(self):
-        return self.application.balance_model
-
-    @property
-    def ads_model(self):
-        return self.application.ads_model
-
-    @property
-    def balance_type_model(self):
-        return self.application.balance_type_model
-
-    @property
-    def item_model(self):
-        return self.application.item_model
-
+    def topic_model(self):
+        return self.application.topic_model
+        
 '''
     @property
     def write_error(self, **kwargs):

@@ -11,26 +11,26 @@ HOWTO deploy on Linode
 	$ apt-get install mysql-server mysql-client
 
 ###Installing tools and dependencies
-	$ apt-get install python-setuptools 
-	$ easy_install pip 
-	$ apt-get install git 
-	$ apt-get install nginx 
-	$ pip install supervisor 
+	$ apt-get install python-setuptools
+	$ easy_install pip
+	$ apt-get install git
+	$ apt-get install nginx
+	$ pip install supervisor
 
 ###Config Git
-	$ ssh-keygen -t rsa -C "avati@gmail.com"
+	$ ssh-keygen -t rsa -C "webeta@gmail.com"
 	$ cat ~/.ssh/id_rsa.pub
 	# copy and paste the RSA key to the Deploy keys setting
-	$ git config --global user.name "avati"  
-	$ git config --global user.email avati@gmail.com  
+	$ git config --global user.name "webeta"  
+	$ git config --global user.email webeta@gmail.com  
 
 ###Make directories for your app
 	$ mkdir ~/www
 
 ###Pull in source code
 	$ cd ~/www/
-	$ git clone git@github.com:gaolinjie/avati.git
-	$ cd avati
+	$ git clone git@github.com:gaolinjie/webeta.git
+	$ cd webeta
 
 ###Install web app required modules
 	$ pip install -r requirements.txt
@@ -43,24 +43,24 @@ HOWTO deploy on Linode
 	$ apt-get install python-MySQLdb
 
 ###Install PIL
-	$ apt-get build-dep python-imaging 
+	$ apt-get build-dep python-imaging
 	$ apt-get install libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
 	$ ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
 	$ ln -s /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib
 	$ ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib
 	$ pip install http://effbot.org/downloads/Imaging-1.1.7.tar.gz
-	# pip install -U PIL	
+	# pip install -U PIL
 
 ###Install requests
 	$ pip install requests
 
 ###Create database and then execute sql file in dbstructure/
 	$ mysql -u root -p
-	mysql> CREATE DATABASE avati;
-	mysql> GRANT ALL PRIVILEGES ON avati.* TO 'avati'@'localhost' IDENTIFIED BY 'avati';
+	mysql> CREATE DATABASE webeta;
+	mysql> GRANT ALL PRIVILEGES ON webeta.* TO 'webeta'@'localhost' IDENTIFIED BY 'webeta';
 	mysql> exit
-	$ mysql -u avati -p --database=avati < dbstructure/avati.sql
-	$ mysql -u avati -p --database=avati < dbstructure/data.sql
+	$ mysql -u webeta -p --database=webeta < dbstructure/webeta.sql
+	$ mysql -u webeta -p --database=webeta < dbstructure/data.sql
 
 ###Install Torndb
     $ pip install torndb
@@ -85,17 +85,17 @@ HOWTO deploy on Linode
     $ rm /swapfile
 
 ###Create symbolic links to conf files
-	$ cd /etc/nginx 
+	$ cd /etc/nginx
 	$ rm nginx.conf
-	$ ln -s ~/www/avati/conf/nginx.conf nginx.conf 
+	$ ln -s ~/www/webeta/conf/nginx.conf nginx.conf
 	$ cd
-	$ ln -s ~/www/avati/conf/supervisord.conf supervisord.conf  
+	$ ln -s ~/www/webeta/conf/supervisord.conf supervisord.conf  
 
 ###Create nginx user
-	$ adduser --system --no-create-home --disabled-login --disabled-password --group nginx 
+	$ adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 
 ###Create a logs directory:
-	$ mkdir ~/logs 
+	$ mkdir ~/logs
 
 ###Start Supervisor and Nginx
 	$ supervisord
@@ -104,15 +104,5 @@ HOWTO deploy on Linode
 ###Visit your public IP address and enjoy!
 
 ###Update your web app
-	$ cd ~/www/avati
+	$ cd ~/www/webeta
 	$ git pull
-
-
-###Inspire from
-    # quora.com
-    # zhihu.com
-    # segmentfault.com
-    # coding.net
-    # f2e.im
-    # dgtle.com
-

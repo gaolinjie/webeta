@@ -28,6 +28,7 @@ class Filters():
         self.jinja2.filters["index_content_process"] = self.index_content_process
         self.jinja2.filters["mobile_index_process"] = self.mobile_index_process
         self.jinja2.filters["reply_process"] = self.reply_process
+        self.jinja2.filters["mp_content_process"] = self.mp_content_process
         self.jinja2.filters["markdown"] = self.markdown
         return self.jinja2
 
@@ -56,7 +57,7 @@ class Filters():
 
         t = self.jinja2.from_string("""
             {% if page and not page.pages == 1 %}
-                
+
                     <li class="previous {% if page.current == page.prev %}disabled{% endif %}" >
                     {% if not page.current == page.prev %}
                                 <a href="{{ uri|build_uri('p', page.prev) }}">&larr; 上一页</a>
@@ -72,7 +73,7 @@ class Filters():
                                 <a href="javascript:;">下一页 &rarr;</a>
                             {% endif %}
                     </li>
-                
+
             {% endif %}
             """)
 
@@ -102,7 +103,7 @@ class Filters():
         elif type(time) is int:
             diff = now - datetime.fromtimestamp(time)
         elif isinstance(time, datetime):
-            diff = now - time 
+            diff = now - time
         elif not time:
             diff = now - now
         second_diff = diff.seconds
@@ -147,6 +148,14 @@ class Filters():
         content = re.sub(r'([a-zA-z]+://[^\s]*)(\s*)(\&nbsp;*)', r'<a class="mmm-link web-link" href="\1" target="_blank"></a>', content)
         # render @ mention links
         content = re.sub(ur'@(?!_)(?!.*?_$)(?!\d+)([a-zA-Z0-9_\u4e00-\u9fa5]+)(\s|)', r'<a href="/u/\1"  class="tipped_ajax_user" data-tipped="/get/user/\1">@\1</a> ', content)
+        return content
+
+    def mp_content_process(self, content):
+        if None==content:
+            return
+        content = re.sub(r'data-src', r'src', content)
+        content = re.sub(r'http://mmbiz.qpic.cn/mmbiz/', r'http://img03.store.sogou.com/net/a/04/link?appid=100520031&w=710&url=http://mmbiz.qpic.cn/mmbiz/', content)
+
         return content
 
     def mobile_index_process(self, content):
@@ -213,6 +222,3 @@ class Filters():
         if not content:
             return ""
         return markdown(content, extensions = ['codehilite', 'fenced_code', 'mathjax'], safe_mode = 'escape')
-
-
-    

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 #
-# Copyright 2014 avati
+# Copyright 2016 webeta
 
 # cat /etc/mime.types
 # application/octet-stream    crx
@@ -20,7 +20,6 @@ import tornado.options
 import tornado.web
 
 import handler.index
-import handler.user
 
 from tornado.options import define, options
 from lib.loader import Loader
@@ -29,14 +28,14 @@ from jinja2 import Environment, FileSystemLoader
 
 define("port", default = 80, help = "run on the given port", type = int)
 define("mysql_host", default = "localhost", help = "community database host")
-define("mysql_database", default = "avati", help = "community database name")
-define("mysql_user", default = "avati", help = "community database user")
-define("mysql_password", default = "avati", help = "community database password")
+define("mysql_database", default = "webeta", help = "community database name")
+define("mysql_user", default = "webeta", help = "community database user")
+define("mysql_password", default = "webeta", help = "community database password")
 
 class Application(tornado.web.Application):
     def __init__(self):
         settings = dict(
-            blog_title = u"avati",
+            blog_title = u"webeta",
             template_path = os.path.join(os.path.dirname(__file__), "templates"),
             static_path = os.path.join(os.path.dirname(__file__), "static"),
             root_path = os.path.join(os.path.dirname(__file__), "/"),
@@ -57,6 +56,8 @@ class Application(tornado.web.Application):
 
             (r"/", handler.index.IndexHandler),
             (r"/weixin", handler.index.WeixinHandler),
+            (r"/shareit", handler.index.ShareItHandler),
+            (r"/t/(.*)", handler.index.TopicHandler),
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -72,6 +73,7 @@ class Application(tornado.web.Application):
 
         # Have one global model for db query
         self.user_model = self.loader.use("user.model")
+        self.topic_model = self.loader.use("topic.model")
 
         # Have one global session controller
         self.session_manager = SessionManager(settings["cookie_secret"], ["127.0.0.1:11211"], 0)
@@ -87,4 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

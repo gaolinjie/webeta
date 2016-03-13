@@ -15,7 +15,7 @@ import tornado.web
 import lib.jsonp
 import pprint
 import math
-import datetime 
+import datetime
 import os
 import requests
 
@@ -42,6 +42,40 @@ import commands
 class IndexHandler(BaseHandler):
     def get(self, template_variables = {}):
         self.render("index.html", **template_variables)
+
+class ShareItHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        print 'asdf'
+
+    def post(self):
+        data = json.loads(self.request.body)
+        link_text = data["link_text"]
+        print link_text
+        doc=pyq(link_text)
+        title = doc('#activity-name').text()
+        print title
+        content = doc('.rich_media_content')
+        print content
+
+        topic_uuid = "%s" % uuid.uuid1()
+        self.topic_model.add_new_topic({
+                "topic_uuid": topic_uuid,
+                "title": title,
+                "content": content,
+                "created": time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        self.write(lib.jsonp.print_JSON({
+                    "success": 1,
+                    "topic_url": "/t/"+topic_uuid
+                }))
+
+class TopicHandler(BaseHandler):
+    def get(self, topic_uuid, template_variables = {}):
+        print topic_uuid
+        topic = self.topic_model.get_topic_by_topic_uuid(topic_uuid)
+        template_variables["topic"] = topic
+        self.render("topic.html", **template_variables)
 
 # for weixin test
 class WeixinHandler(BaseHandler):
@@ -95,7 +129,7 @@ class WeixinHandler(BaseHandler):
                         <Content><![CDATA[%s]]></Content>
                     </xml>"""
         out = textTpl % (fromusername, tousername, str(int(time.time())), msgtype, result)
-        self.write(out)    
+        self.write(out)
 
 class MenuManager:
     accessUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx9f6b9870de292bb7&secret=970ad300582a06480202fbebd942f801"
@@ -131,4 +165,3 @@ class MenuManager:
     def getMenu(self, accessToken):
         html = urllib2.urlopen(self.getMenuUri + accessToken)
         print(html.read().decode("utf-8"))
-

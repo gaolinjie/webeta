@@ -159,7 +159,33 @@ $(function () {
         name: 'shareit',
         url: '#shareit',
         template: '#tpl_shareit',
-        events: {}
+        events: {
+          '#shareIt': {
+              click: function (e) {
+                  var $linkText = $('#linkText').val();
+                  $.ajax({
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    url: "/shareit",
+                    data: JSON.stringify({
+                      link_text: $linkText
+                    }),
+                    success: function(msg) {
+                      if (msg.success != 0) {
+                        //alert(msg.topic_url);
+                        window.location.replace(msg.topic_url);
+                      } else {
+                        alert("error");
+                      }
+                    },
+                    error: function(msg) {
+                      alert("error");
+                    }
+                  });
+              }
+          }
+        }
     };
     var button = {
         name: 'button',
