@@ -153,6 +153,9 @@ class WeixinHandler(BaseHandler):
             self.write('error,code 403')
 
     def post(self):
+        print 'dddddddddddddd'
+        self.write("")
+        '''
         body = self.request.body
         data = ET.fromstring(body)
         tousername = data.find('ToUserName').text
@@ -175,6 +178,7 @@ class WeixinHandler(BaseHandler):
                     </xml>"""
         out = textTpl % (fromusername, tousername, str(int(time.time())), msgtype, result)
         self.write(out)
+        '''
 
 class MenuManager:
     accessUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx9f6b9870de292bb7&secret=970ad300582a06480202fbebd942f801"
