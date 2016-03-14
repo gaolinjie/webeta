@@ -44,9 +44,11 @@ class BaseHandler(tornado.web.RequestHandler):
         return template.render(**template_vars)
 
     def get_current_user(self):
-        user_id = self.get_secure_cookie("user")
-        if not user_id: return None
-        return self.user_model.get_user_by_uid(int(user_id))
+        # 用户登录还没好
+        #user_id = self.get_secure_cookie("user")
+        #if not user_id: return None
+        #return self.user_model.get_user_by_uid(int(user_id))
+        return self.user_model.get_user_by_uid(1)
 
     @property
     def user_model(self):
@@ -55,7 +57,11 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def topic_model(self):
         return self.application.topic_model
-        
+
+    @property
+    def ad_model(self):
+        return self.application.ad_model
+
 '''
     @property
     def write_error(self, **kwargs):

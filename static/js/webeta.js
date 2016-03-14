@@ -160,21 +160,121 @@ $(function () {
         url: '#shareit',
         template: '#tpl_shareit',
         events: {
+          '#adSelect': {
+              click: function (e) {
+                var mask = $('#mask');
+                var weuiActionsheet = $('#weui_actionsheet');
+                weuiActionsheet.addClass('weui_actionsheet_toggle');
+                mask.show().addClass('weui_fade_toggle').one('click', function () {
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                $('#actionsheet_cancel').one('click', function () {
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                $('.weui_actionsheet_menu .weui_actionsheet_cell').one('click', function () {
+                    var cellText = $(this).text();
+                    var cellUuid = $(this).attr('data-uuid');
+                    $('#adSelect .weui_cell_bd p').text(cellText);
+                    $('#adSelect').attr('data-uuid', cellUuid);
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                weuiActionsheet.unbind('transitionend').unbind('webkitTransitionEnd');
+
+                function hideActionSheet(weuiActionsheet, mask) {
+                    weuiActionsheet.removeClass('weui_actionsheet_toggle');
+                    mask.removeClass('weui_fade_toggle');
+                    weuiActionsheet.on('transitionend', function () {
+                        mask.hide();
+                    }).on('webkitTransitionEnd', function () {
+                        mask.hide();
+                    })
+                }
+              }
+          },
           '#shareIt': {
               click: function (e) {
                   var $linkText = $('#linkText').val();
+                  var $adUuid = $('#adSelect').attr('data-uuid');
                   $.ajax({
                     type: "POST",
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     url: "/shareit",
                     data: JSON.stringify({
-                      link_text: $linkText
+                      link_text: $linkText,
+                      ad_uuid: $adUuid,
                     }),
                     success: function(msg) {
                       if (msg.success != 0) {
                         //alert(msg.topic_url);
                         window.location.replace(msg.topic_url);
+                      } else {
+                        alert("error");
+                      }
+                    },
+                    error: function(msg) {
+                      alert("error");
+                    }
+                  });
+              }
+          }
+        }
+    };
+    var addad = {
+        name: 'addad',
+        url: '#addad',
+        template: '#tpl_addad',
+        events: {
+          '#adTemplate': {
+              click: function (e) {
+                var mask = $('#mask');
+                var weuiActionsheet = $('#weui_actionsheet');
+                weuiActionsheet.addClass('weui_actionsheet_toggle');
+                mask.show().addClass('weui_fade_toggle').one('click', function () {
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                $('#actionsheet_cancel').one('click', function () {
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                $('.weui_actionsheet_menu .weui_actionsheet_cell').one('click', function () {
+                    var cellText = $(this).text();
+                    $('#adTemplate .weui_cell_bd p').text(cellText);
+                    hideActionSheet(weuiActionsheet, mask);
+                });
+                weuiActionsheet.unbind('transitionend').unbind('webkitTransitionEnd');
+
+                function hideActionSheet(weuiActionsheet, mask) {
+                    weuiActionsheet.removeClass('weui_actionsheet_toggle');
+                    mask.removeClass('weui_fade_toggle');
+                    weuiActionsheet.on('transitionend', function () {
+                        mask.hide();
+                    }).on('webkitTransitionEnd', function () {
+                        mask.hide();
+                    })
+                }
+              }
+          },
+          '#addAd': {
+              click: function (e) {
+                  var $ad_name = $('#adName').val();
+                  var $ad_type = $('#adTemplate .weui_cell_primary p').text();
+                  var $ad_text = $('#adText').val();
+                  var $ad_link = $('#adLink').val();
+                  $.ajax({
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    url: "/addad",
+                    data: JSON.stringify({
+                      ad_name: $ad_name,
+                      ad_type: $ad_type,
+                      ad_text: $ad_text,
+                      ad_link: $ad_link,
+                    }),
+                    success: function(msg) {
+                      if (msg.success != 0) {
+                        //alert(msg.topic_url);
+                        window.location.replace('/');
                       } else {
                         alert("error");
                       }
@@ -420,6 +520,7 @@ $(function () {
 
     pageManager.push(home)
         .push(shareit)
+        .push(addad)
         .push(cell)
         .push(toast)
         .push(dialog)

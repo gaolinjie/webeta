@@ -41,6 +41,13 @@ import commands
 
 class IndexHandler(BaseHandler):
     def get(self, template_variables = {}):
+        user_info = self.current_user
+        template_variables["user_info"] = user_info
+        default_ad = self.ad_model.get_ad_by_ad_uuid(user_info.default_ad)
+        template_variables["default_ad"] = default_ad
+        ads = self.ad_model.get_ads_by_author_id()
+        template_variables["ads"] = ads
+
         self.render("index.html", **template_variables)
 
 class ShareItHandler(BaseHandler):
@@ -48,20 +55,22 @@ class ShareItHandler(BaseHandler):
         print 'asdf'
 
     def post(self):
+        user_info = self.current_user
         data = json.loads(self.request.body)
         link_text = data["link_text"]
-        print link_text
+        ad_uuid = data["ad_uuid"]
+
         doc=pyq(link_text)
         title = doc('#activity-name').text()
-        print title
         content = doc('.rich_media_content')
-        print content
 
         topic_uuid = "%s" % uuid.uuid1()
         self.topic_model.add_new_topic({
                 "topic_uuid": topic_uuid,
+                "ad_uuid": ad_uuid,
                 "title": title,
                 "content": content,
+                "author_id": user_info.wx_id,
                 "created": time.strftime('%Y-%m-%d %H:%M:%S'),
             })
 
@@ -70,11 +79,47 @@ class ShareItHandler(BaseHandler):
                     "topic_url": "/t/"+topic_uuid
                 }))
 
+class AddAdHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        print 'asdf'
+
+    def post(self):
+        user_info = self.current_user
+        data = json.loads(self.request.body)
+        ad_name = data["ad_name"]
+        ad_type = data["ad_type"]
+        ad_text = data["ad_text"]
+        ad_link = data["ad_link"]
+
+        if ad_type == '纯文本广告':
+            ad_type = 'only_text'
+        elif ad_type == '纯图片广告':
+            ad_type = 'only_img'
+        elif ad_type == '文本加图片广告':
+            ad_type = 'text_and_img'
+
+        ad_uuid = "%s" % uuid.uuid1()
+        self.ad_model.add_new_ad({
+                "ad_uuid": ad_uuid,
+                "ad_name": ad_name,
+                "ad_type": ad_type,
+                "ad_text": ad_text,
+                "ad_link": ad_link,
+                "author_id": user_info.wx_id,
+                "updated": time.strftime('%Y-%m-%d %H:%M:%S'),
+                "created": time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        self.write(lib.jsonp.print_JSON({
+                    "success": 1,
+                }))
+
 class TopicHandler(BaseHandler):
     def get(self, topic_uuid, template_variables = {}):
-        print topic_uuid
         topic = self.topic_model.get_topic_by_topic_uuid(topic_uuid)
         template_variables["topic"] = topic
+        ad = self.ad_model.get_ad_by_ad_uuid(topic.ad_uuid)
+        template_variables["ad"] = ad
         self.render("topic.html", **template_variables)
 
 # for weixin test

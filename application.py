@@ -58,6 +58,7 @@ class Application(tornado.web.Application):
             (r"/weixin", handler.index.WeixinHandler),
             (r"/shareit", handler.index.ShareItHandler),
             (r"/t/(.*)", handler.index.TopicHandler),
+            (r"/addad", handler.index.AddAdHandler),
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -74,6 +75,7 @@ class Application(tornado.web.Application):
         # Have one global model for db query
         self.user_model = self.loader.use("user.model")
         self.topic_model = self.loader.use("topic.model")
+        self.ad_model = self.loader.use("ad.model")
 
         # Have one global session controller
         self.session_manager = SessionManager(settings["cookie_secret"], ["127.0.0.1:11211"], 0)
