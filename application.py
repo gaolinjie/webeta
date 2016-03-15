@@ -59,6 +59,8 @@ class Application(tornado.web.Application):
             (r"/shareit", handler.index.ShareItHandler),
             (r"/t/(.*)", handler.index.TopicHandler),
             (r"/addad", handler.index.AddAdHandler),
+            (r"/myshares", handler.index.MySharesHandler),
+            (r"/myads", handler.index.MyAdsHandler),
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)

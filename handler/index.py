@@ -79,6 +79,23 @@ class ShareItHandler(BaseHandler):
                     "topic_url": "/t/"+topic_uuid
                 }))
 
+class MySharesHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        user_info = self.current_user
+        p = int(self.get_argument("p", "1"))
+        shares = self.topic_model.get_user_all_topics(user_info.wx_id, current_page = p)
+        template_variables["shares"] = shares
+        self.render("shares.html", **template_variables)
+
+class MyAdsHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        user_info = self.current_user
+        p = int(self.get_argument("p", "1"))
+        ads = self.ad_model.get_user_all_ads(user_info.wx_id, current_page = p)
+        template_variables["ads"] = ads
+        self.render("ads.html", **template_variables)
+
+
 class AddAdHandler(BaseHandler):
     def get(self, template_variables = {}):
         print 'asdf'

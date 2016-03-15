@@ -29,3 +29,8 @@ class AdModel(Query):
     def delete_ad_by_ad_uuid(self, ad_uuid):
         where = "ad.ad_uuid = %s" % ad_uuid
         return self.where(where).delete()
+
+    def get_user_all_ads(self, author_id, num = 10, current_page = 1):
+        where = "ad.author_id = '%s'" % author_id
+        order = "ad.updated DESC, ad.id DESC"
+        return self.where(where).order(order).pages(current_page = current_page, list_rows = num)
