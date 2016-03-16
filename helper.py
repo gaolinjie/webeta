@@ -153,7 +153,7 @@ class Filters():
     def mp_content_process(self, content):
         if None==content:
             return
-        content = re.sub(r'data-src', r'src', content)
+        #content = re.sub(r'data-src', r'data-original', content)
         content = re.sub(r'http://mmbiz.qpic.cn/mmbiz/', r'http://img03.store.sogou.com/net/a/04/link?appid=100520031&w=710&url=http://mmbiz.qpic.cn/mmbiz/', content)
 
         return content

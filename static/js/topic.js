@@ -12,4 +12,6 @@ $(document).ready(function() {
         video_src = "http://v.qq.com/iframe/player.html?vid=" + video_vid + "&amp;width=" + width + "&amp;height=" + height + "&amp;auto=0";
         $(this).attr('src', video_src);
     });
+
+    $("img").lazyload();
 });
