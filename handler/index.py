@@ -18,6 +18,7 @@ import math
 import datetime
 import os
 import requests
+import MySQLdb
 
 from base import *
 from lib.sendmail import send
@@ -62,7 +63,7 @@ class ShareItHandler(BaseHandler):
 
         doc=pyq(link_text)
         title = doc('#activity-name').text()
-        content = doc('.rich_media_content')
+        content = doc('.rich_media_content').outerHtml()
 
         topic_uuid = "%s" % uuid.uuid1()
         self.topic_model.add_new_topic({

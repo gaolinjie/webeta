@@ -42,13 +42,21 @@
 
           {{topic.content|mp_content_process}}
 
-          <div style="margin: 3px auto;padding: 15px;line-height: 24px;box-shadow: rgb(170, 170, 170) 0px 0px 3px;border: 2px solid rgb(240, 240, 240);box-sizing: border-box;">
-            <p>
-              <a href="{{ad.ad_link}}" style="color: #888888; line-height: 25.6px;">
-                {{ad.ad_text}}
-              </a>
-            </p>
+          <div style="position:static;box-sizing: border-box;">
+              <div style="margin:5px auto;border: 3px solid rgb(255, 129, 36); padding: 5px;">
+                <div style="border: 1px solid rgb(255, 158, 87); padding: 15px; text-align: center; color: inherit;">
+                  <p style="color:inherit;">
+                    <strong style="color:inherit">
+                      <a href="{{ad.ad_link}}" style="color:inherit; font-size:16px">
+                        {{ad.ad_text}}
+                      </a>
+                    </strong>
+                  </p>
+                </div>
+              </div>
+              <div style="display: block; width: 0; height: 0; clear: both;"></div>
           </div>
+
           </div>
         </div>
       </div>
