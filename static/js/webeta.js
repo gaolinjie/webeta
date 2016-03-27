@@ -287,6 +287,74 @@ $(function () {
           }
         }
     };
+    var addtb = {
+        name: 'addtb',
+        url: '#addtb',
+        template: '#tpl_addtb',
+        events: {
+          '#addTb': {
+              click: function (e) {
+                  var $linkText = $('#linkText').val();
+                  var re = new RegExp('https:\/\/(.+).tmall.com');
+                  var shop_link = re.exec($linkText)[0];
+                  shop_link = shop_link.replace('https://', '');
+                  var default_url = 'https://'+ shop_link + "/i/asynSearch.htm?mid=w-9918988062-0&wid=9918988062&path=/category.htm&search=y&orderType=hotsell_desc&pageNo=";
+                  var shop_uuid = "";
+                  var page = 1;
+                  var url = default_url + page;
+                  getShopUUID(shop_link);
+                  getItems(url);
+
+                  function getShopUUID(shop) {
+                    $.getJSON('/get/shop?shop_link=' + shop, function(data) {
+                      if (data.success != 0) {
+                        shop_uuid = data.shop_uuid;
+                      } else {
+                        alert('获取店铺UUID失败，请重试!');
+                      }
+                    });
+                  }
+
+                  function getItems(url) {
+                    $.ajax({
+                      url: url,
+                      type: "GET",
+                      dataType: 'jsonp',
+                      crossDomain: true,
+                      success: function(msg){
+                        if (msg.search('没找到符合条件的商品') == -1) {
+                          postItems(msg);
+                        }
+                      },
+                      error: function(msg) {
+                        alert("error");
+                      }
+                    });
+                  }
+
+                  function postItems(items) {
+                    $.ajax({
+                      type: "POST",
+                      contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                      url: "/addtb",
+                      data: JSON.stringify({
+                        shop_uuid: shop_uuid,
+                        items_text: items,
+                      }),
+                      success: function(msg) {
+                        page = page + 1;
+                        getItems(default_url + page);
+                      },
+                      error: function(msg) {
+                        alert("error");
+                      }
+                    });
+                  }
+              }
+          }
+        }
+    };
     var button = {
         name: 'button',
         url: '#button',
@@ -521,6 +589,7 @@ $(function () {
     pageManager.push(home)
         .push(shareit)
         .push(addad)
+        .push(addtb)
         .push(cell)
         .push(toast)
         .push(dialog)

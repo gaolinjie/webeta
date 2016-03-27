@@ -62,6 +62,14 @@ class BaseHandler(tornado.web.RequestHandler):
     def ad_model(self):
         return self.application.ad_model
 
+    @property
+    def taobao_model(self):
+        return self.application.taobao_model
+
+    @property
+    def shop_model(self):
+        return self.application.shop_model
+
 '''
     @property
     def write_error(self, **kwargs):

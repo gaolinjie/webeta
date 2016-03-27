@@ -29,8 +29,10 @@ from lib.utils import find_mentions
 from lib.reddit import hot
 from lib.utils import pretty_date
 from pyquery import PyQuery as pyq
+from lib.dateencoder import DateEncoder
 
 from lib.mobile import is_mobile_browser
+from lib.mobile import is_weixin_browser
 from form.post import *
 
 from qiniu import Auth
@@ -39,6 +41,11 @@ from qiniu import put_data
 
 import xml.etree.ElementTree as ET
 import commands
+
+access_key = "8RGFv3IumZByltTM1dxc9ZMAeij78rvTkjDd6WLs"
+secret_key = "Ge61JJtUSC5myXVrntdVOqAZ5L7WpXR_Taa9C8vb"
+q = Auth(access_key, secret_key)
+bucket = BucketManager(q)
 
 class IndexHandler(BaseHandler):
     def get(self, template_variables = {}):
@@ -140,6 +147,141 @@ class TopicHandler(BaseHandler):
         template_variables["ad"] = ad
         self.render("topic.html", **template_variables)
 
+class MyTabaosHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        p = int(self.get_argument("p", "1"))
+        user_info = self.current_user
+        shop = self.shop_model.get_shop_by_author(user_info.wx_id)
+        template_variables["shop"] = shop
+        self.render("taobaos.html", **template_variables)
+
+class ShopHandler(BaseHandler):
+    def get(self, shop_uuid, template_variables = {}):
+        p = int(self.get_argument("p", "1"))
+        shop = self.shop_model.get_shop_by_shop_uuid(shop_uuid)
+        template_variables["shop"] = shop
+        self.render("shop.html", **template_variables)
+
+class GetShopItemsHandler(BaseHandler):
+    def get(self, shop_uuid, template_variables = {}):
+        p = int(self.get_argument("p", "1"))
+        items = self.taobao_model.get_shop_all_items(shop_uuid, current_page = p)
+        result_json = json.dumps(items, cls=DateEncoder)
+        self.write(result_json)
+
+class GetShopUUIDHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        user_info = self.current_user
+        shop_link = self.get_argument("shop_link", "")
+        shop = self.shop_model.get_shop_by_link_and_author(shop_link, user_info.wx_id)
+        if shop:
+            shop_uuid = shop.shop_uuid
+        else:
+            shop_uuid = "%s" % uuid.uuid1()
+            self.shop_model.add_new_shop({
+                "shop_uuid": shop_uuid,
+                "shop_type": "tmall",
+                "shop_name": shop_link,
+                "shop_link": shop_link,
+                "author_id": user_info.wx_id,
+                "updated": time.strftime('%Y-%m-%d %H:%M:%S'),
+                "created": time.strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        self.write(lib.jsonp.print_JSON({
+                    "success": 1,
+                    "shop_uuid": shop_uuid,
+            }))
+
+class AddTbHandler(BaseHandler):
+    def get(self, template_variables = {}):
+        print 'asdf'
+
+    def post(self):
+        user_info = self.current_user
+        data = json.loads(self.request.body)
+        shop_uuid = data["shop_uuid"]
+        items_text = data["items_text"]
+
+        doc = pyq("<html><body>"+items_text+"</body></html>")
+        items = doc('.item')
+        for item in items:
+            item = pyq(item)
+            if item.find('.thumb'):
+                item_type = "tmall"
+                item_id = item.attr('data-id')
+                item_title = item.find('.photo img').attr('alt')
+                item_thumb = item.find('.photo img').attr('data-ks-lazyload')
+                item_thumb = item_thumb[0:-12]
+                item_link = item.find('.photo .J_TGoldData').attr('href')
+                item_price = item.find('.detail .c-price').text()
+
+                taobao = self.taobao_model.get_taobao_by_item_id_and_author_id(item_id, user_info.wx_id)
+                if taobao:
+                    self.taobao_model.update_taobao_by_item_uuid(taobao.item_uuid, {
+                        "item_title": item_title,
+                        "item_thumb": item_thumb,
+                        "item_link": item_link,
+                        "item_price": item_price,
+                        "updated": time.strftime('%Y-%m-%d %H:%M:%S'),
+                    })
+                else:
+                    item_uuid = "%s" % uuid.uuid1()
+                    self.taobao_model.add_new_taobao({
+                        "shop_uuid": shop_uuid,
+                        "item_uuid": item_uuid,
+                        "item_type": item_type,
+                        "item_id": item_id,
+                        "item_title": item_title,
+                        "item_thumb": item_thumb,
+                        "item_link": item_link,
+                        "item_price": item_price,
+                        "author_id": user_info.wx_id,
+                        "updated": time.strftime('%Y-%m-%d %H:%M:%S'),
+                        "created": time.strftime('%Y-%m-%d %H:%M:%S'),
+                    })                
+
+        self.write(lib.jsonp.print_JSON({
+                    "success": 1
+                }))
+
+class TaobaoHandler(BaseHandler):
+    def get(self, item_uuid, template_variables = {}):
+        taobao = self.taobao_model.get_taobao_by_item_uuid(item_uuid)
+        template_variables["taobao"] = taobao
+        if is_weixin_browser(self):
+            self.render("taobao.html", **template_variables)
+        else:
+            self.redirect(taobao.item_link)
+
+class TaobaoPromptHandler(BaseHandler):
+    def get(self, item_uuid, template_variables = {}):
+        taobao = self.taobao_model.get_taobao_by_item_uuid(item_uuid)
+        template_variables["taobao"] = taobao
+        if is_weixin_browser(self):
+            self.render("prompt.html", **template_variables)
+        else:
+            self.redirect(taobao.item_link)
+
+class TaobaoEditHandler(BaseHandler):
+    def get(self, item_uuid, template_variables = {}):
+        user_info = self.current_user
+        taobao = self.taobao_model.get_taobao_by_item_uuid(item_uuid)
+        template_variables["taobao"] = taobao
+        self.render("edit_taobao.html", **template_variables)
+
+    def post(self, item_uuid):
+        user_info = self.current_user
+        data = json.loads(self.request.body)
+        tao_code = data["tao_code"]
+        print tao_code
+        self.taobao_model.update_taobao_by_item_uuid(item_uuid, {
+            "tao_code": tao_code,
+            })
+        self.write(lib.jsonp.print_JSON({
+                    "success": 1
+                }))
+
 # for weixin test
 class WeixinHandler(BaseHandler):
     def get(self, template_variables = {}):
@@ -221,7 +363,7 @@ class MenuManager:
                         {
                             "type":"view",
                             "name":"WeBeta",
-                            "url":"http://webeta.ngrok.io/"
+                            "url":"http://webeta.ngrok.cc/"
                         },
                     ]
                 }'''

@@ -63,3 +63,44 @@ CREATE TABLE `ad` (
   `created` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Table structure for `shop`
+-- ----------------------------
+DROP TABLE IF EXISTS `shop`;
+CREATE TABLE `shop` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_num` int(11) DEFAULT 0,
+  `shop_uuid` text,
+  `shop_type` text,
+  `shop_name` text,
+  `shop_link` text,
+  `shop_thumb` text,
+  `tao_code` text,
+  `author_id` text,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Table structure for `taobao`
+-- ----------------------------
+DROP TABLE IF EXISTS `taobao`;
+CREATE TABLE `taobao` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_num` int(11) DEFAULT 0,
+  `shop_uuid` text,
+  `item_uuid` text,
+  `item_type` text,
+  `item_id` text,
+  `item_title` text,
+  `item_link` text,
+  `item_thumb` text,
+  `item_price` text,
+  `tao_code` text,
+  `author_id` text,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

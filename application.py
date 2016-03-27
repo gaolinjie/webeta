@@ -61,6 +61,14 @@ class Application(tornado.web.Application):
             (r"/addad", handler.index.AddAdHandler),
             (r"/myshares", handler.index.MySharesHandler),
             (r"/myads", handler.index.MyAdsHandler),
+            (r"/tb/(.*)", handler.index.TaobaoHandler),
+            (r"/prompt/(.*)", handler.index.TaobaoPromptHandler),
+            (r"/addtb", handler.index.AddTbHandler),
+            (r"/get/shop", handler.index.GetShopUUIDHandler),
+            (r"/shop/(.*)", handler.index.ShopHandler),
+            (r"/api/shop/(.*)", handler.index.GetShopItemsHandler),
+            (r"/mytbs", handler.index.MyTabaosHandler),
+            (r"/edit/tb/(.*)", handler.index.TaobaoEditHandler),
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -78,6 +86,8 @@ class Application(tornado.web.Application):
         self.user_model = self.loader.use("user.model")
         self.topic_model = self.loader.use("topic.model")
         self.ad_model = self.loader.use("ad.model")
+        self.taobao_model = self.loader.use("taobao.model")
+        self.shop_model = self.loader.use("shop.model")
 
         # Have one global session controller
         self.session_manager = SessionManager(settings["cookie_secret"], ["127.0.0.1:11211"], 0)
