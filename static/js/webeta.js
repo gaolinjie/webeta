@@ -295,18 +295,34 @@ $(function () {
           '#addTb': {
               click: function (e) {
                   var $linkText = $('#linkText').val();
-                  var re = new RegExp('https:\/\/(.+).tmall.com');
-                  var shop_link = re.exec($linkText)[0];
+                  var re = new RegExp('https:\/\/(.+).taobao.com');
+                  var shop_type = '';
+                  var shop_link = '';
+                  if (re.exec($linkText)) {
+                    shop_link = re.exec($linkText)[0];
+                    shop_type = 'taobao';
+                  } else {
+                    re = new RegExp('https:\/\/(.+).tmall.com');
+                    if (re.exec($linkText)) {
+                        shop_link = re.exec($linkText)[0];
+                        shop_type = 'tmall';
+                    }
+                  }
+
+                  if ('' == shop_link) {
+                    return;
+                  }
+                  
                   shop_link = shop_link.replace('https://', '');
                   var default_url = 'https://'+ shop_link + "/i/asynSearch.htm?mid=w-9918988062-0&wid=9918988062&path=/category.htm&search=y&orderType=hotsell_desc&pageNo=";
                   var shop_uuid = "";
                   var page = 1;
                   var url = default_url + page;
-                  getShopUUID(shop_link);
+                  getShopUUID(shop_link, shop_type);
                   getItems(url);
 
-                  function getShopUUID(shop) {
-                    $.getJSON('/get/shop?shop_link=' + shop, function(data) {
+                  function getShopUUID(shop_link, shop_type) {
+                    $.getJSON('/get/shop?shop_link=' + shop_link + '&shop_type=' + shop_type, function(data) {
                       if (data.success != 0) {
                         shop_uuid = data.shop_uuid;
                       } else {
@@ -339,6 +355,7 @@ $(function () {
                       dataType: "json",
                       url: "/addtb",
                       data: JSON.stringify({
+                        item_type: shop_type,
                         shop_uuid: shop_uuid,
                         items_text: items,
                       }),

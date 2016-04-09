@@ -173,6 +173,7 @@ class GetShopUUIDHandler(BaseHandler):
     def get(self, template_variables = {}):
         user_info = self.current_user
         shop_link = self.get_argument("shop_link", "")
+        shop_type= self.get_argument("shop_type", "")
         shop = self.shop_model.get_shop_by_link_and_author(shop_link, user_info.wx_id)
         if shop:
             shop_uuid = shop.shop_uuid
@@ -180,7 +181,7 @@ class GetShopUUIDHandler(BaseHandler):
             shop_uuid = "%s" % uuid.uuid1()
             self.shop_model.add_new_shop({
                 "shop_uuid": shop_uuid,
-                "shop_type": "tmall",
+                "shop_type": shop_type,
                 "shop_name": shop_link,
                 "shop_link": shop_link,
                 "author_id": user_info.wx_id,
@@ -202,13 +203,13 @@ class AddTbHandler(BaseHandler):
         data = json.loads(self.request.body)
         shop_uuid = data["shop_uuid"]
         items_text = data["items_text"]
+        item_type = data["item_type"]
 
         doc = pyq("<html><body>"+items_text+"</body></html>")
         items = doc('.item')
         for item in items:
             item = pyq(item)
             if item.find('.thumb'):
-                item_type = "tmall"
                 item_id = item.attr('data-id')
                 item_title = item.find('.photo img').attr('alt')
                 item_thumb = item.find('.photo img').attr('data-ks-lazyload')
@@ -249,10 +250,19 @@ class TaobaoHandler(BaseHandler):
     def get(self, item_uuid, template_variables = {}):
         taobao = self.taobao_model.get_taobao_by_item_uuid(item_uuid)
         template_variables["taobao"] = taobao
+
         if is_weixin_browser(self):
-            self.render("taobao.html", **template_variables)
+            if taobao.src_code and taobao.src_code != '':
+                doc=pyq(taobao.src_code)
+                tao_content = doc('.viewport').outerHtml()
+                template_variables["tao_content"] = tao_content
+                self.render("taobao_src.html", **template_variables)
+            else:
+                self.render("taobao.html", **template_variables)
         else:
             self.redirect(taobao.item_link)
+
+        
 
 class TaobaoPromptHandler(BaseHandler):
     def get(self, item_uuid, template_variables = {}):
@@ -274,9 +284,11 @@ class TaobaoEditHandler(BaseHandler):
         user_info = self.current_user
         data = json.loads(self.request.body)
         tao_code = data["tao_code"]
+        src_code = data["src_code"]
         print tao_code
         self.taobao_model.update_taobao_by_item_uuid(item_uuid, {
             "tao_code": tao_code,
+            "src_code": src_code,
             })
         self.write(lib.jsonp.print_JSON({
                     "success": 1

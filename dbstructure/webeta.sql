@@ -99,6 +99,7 @@ CREATE TABLE `taobao` (
   `item_thumb` text,
   `item_price` text,
   `tao_code` text,
+  `src_code` longtext,
   `author_id` text,
   `updated` datetime DEFAULT NULL,
   `created` datetime DEFAULT NULL,
